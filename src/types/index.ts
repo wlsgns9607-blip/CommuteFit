@@ -1,4 +1,6 @@
 export interface CommuteData {
+  id: string;
+  name: string;
   departure: string;
   destination: string;
   distance: number;

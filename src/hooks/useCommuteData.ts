@@ -5,7 +5,9 @@ const FUEL_PRICES: Record<string, number> = { gasoline: 2009, diesel: 2004, lpg:
 const TRANSIT_BASE = 1400;
 const TRANSIT_PER_KM = 80;
 
-const DEFAULT_DATA: CommuteData = {
+const DEFAULT_ROUTE: CommuteData = {
+  id: 'route_1',
+  name: '기본 출퇴근',
   departure: '서울시 강남구',
   destination: '서울시 종로구',
   distance: 25,
@@ -18,25 +20,36 @@ const DEFAULT_DATA: CommuteData = {
 };
 
 export function useCommuteData() {
-  const [data, setData] = useState<CommuteData | null>(null);
+  const [routes, setRoutes] = useState<CommuteData[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('commutefit');
-    if (saved) {
+    const savedRoutes = localStorage.getItem('commutefit_routes');
+    const savedActiveId = localStorage.getItem('commutefit_active_id');
+    
+    if (savedRoutes) {
       try {
-        const parsed = JSON.parse(saved);
-        calculateAndUpdate(parsed);
+        const parsed = JSON.parse(savedRoutes);
+        if (parsed && parsed.length > 0) {
+          setRoutes(parsed);
+          setActiveId(savedActiveId || parsed[0].id);
+        } else {
+          throw new Error('No routes');
+        }
       } catch (e) {
-        calculateAndUpdate({ ...DEFAULT_DATA });
+        const initialRoute = calculateCost(DEFAULT_ROUTE);
+        setRoutes([initialRoute]);
+        setActiveId(initialRoute.id);
       }
     } else {
-      calculateAndUpdate({ ...DEFAULT_DATA });
+      const initialRoute = calculateCost(DEFAULT_ROUTE);
+      setRoutes([initialRoute]);
+      setActiveId(initialRoute.id);
     }
   }, []);
 
-  const calculateAndUpdate = (input: CommuteData) => {
+  const calculateCost = (input: CommuteData): CommuteData => {
     const roundTrip = input.distance * 2;
-    
     const carDailyFuel = (roundTrip / input.efficiency) * input.fuelPrice;
     const carDailyTotal = carDailyFuel + (input.parking || 0) + (input.toll || 0);
     const carCost = Math.round(carDailyTotal * input.workdays);
@@ -47,17 +60,48 @@ export function useCommuteData() {
     const savings = carCost - transitCost;
     const carbon = parseFloat(((roundTrip * input.workdays * 0.21) / 1000).toFixed(1));
 
-    const newData = { ...input, carCost, transitCost, savings, carbon };
-    setData(newData);
-    localStorage.setItem('commutefit', JSON.stringify(newData));
+    return { ...input, carCost, transitCost, savings, carbon };
   };
 
-  const saveData = (newData: Partial<CommuteData>) => {
-    if (!data) return;
-    const merged = { ...data, ...newData };
-    merged.fuelPrice = FUEL_PRICES[merged.fuelType];
-    calculateAndUpdate(merged as CommuteData);
+  const saveRoute = (updatedRoute: CommuteData) => {
+    updatedRoute.fuelPrice = FUEL_PRICES[updatedRoute.fuelType] || 2009;
+    const calculated = calculateCost(updatedRoute);
+    
+    let newRoutes = [...routes];
+    const idx = newRoutes.findIndex(r => r.id === updatedRoute.id);
+    if (idx >= 0) {
+      newRoutes[idx] = calculated;
+    } else {
+      newRoutes.push(calculated);
+    }
+    
+    setRoutes(newRoutes);
+    localStorage.setItem('commutefit_routes', JSON.stringify(newRoutes));
+    
+    if (!activeId || idx < 0) {
+      changeActiveRoute(calculated.id);
+    }
   };
 
-  return { data, saveData };
+  const deleteRoute = (id: string) => {
+    if (routes.length <= 1) {
+      alert('최소 1개의 경로는 남겨두어야 합니다.');
+      return;
+    }
+    const newRoutes = routes.filter(r => r.id !== id);
+    setRoutes(newRoutes);
+    localStorage.setItem('commutefit_routes', JSON.stringify(newRoutes));
+    if (activeId === id) {
+      changeActiveRoute(newRoutes[0].id);
+    }
+  };
+
+  const changeActiveRoute = (id: string) => {
+    setActiveId(id);
+    localStorage.setItem('commutefit_active_id', id);
+  };
+
+  const activeRoute = routes.find(r => r.id === activeId) || routes[0] || null;
+
+  return { routes, activeRoute, activeId, saveRoute, changeActiveRoute, deleteRoute };
 }
