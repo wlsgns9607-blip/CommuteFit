@@ -1,73 +1,215 @@
-# React + TypeScript + Vite
+# 📌 주제: 미세먼지 API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 활용 API 정보
 
-Currently, two official plugins are available:
+| 항목 | 내용 |
+|------|------|
+| **API명** | 한국환경공단_에어코리아_미세먼지 경보 발령 현황 |
+| **End Point** | `https://apis.data.go.kr/B552584/UlfptcaAlarmInqireSvc` |
+| **데이터 포맷** | JSON + XML |
+| **인증키** | `71e3a27ca738072ecdb720c30dfb49900309dfd3083a5a3cac20b3f2e11db71e` |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+# CommuteFit (커뮤트핏) PRD 초안
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 1. 한 줄 소개
 
-## Expanding the ESLint configuration
+미세먼지 정보와 출퇴근 데이터를 기반으로 사용자에게 가장 경제적인 이동수단을 추천하는 모바일 웹 서비스
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 2. 목표
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1) 출퇴근 비용 절감
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+사용자가 자가용과 대중교통의 월간 비용 차이를 쉽게 확인할 수 있도록 한다.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2) 친환경 이동 유도
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+미세먼지 경보 시 대중교통 이용을 유도하여 친환경 이동을 장려한다.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 3) 행동 변화 유도
+
+출퇴근 비용 절감 효과를 시각적으로 제공하여 지속적인 행동 변화를 유도한다.
+
+---
+
+## 3. 타겟 사용자
+
+### 주요 타겟
+
+- 수도권 직장인
+- 자가용으로 출퇴근하는 직장인
+- 교통비 및 유류비 절감에 관심 있는 사용자
+
+### 보조 타겟
+
+- 대학생
+- 사회초년생
+- 친환경 소비에 관심 있는 사용자
+
+---
+
+## 4. 핵심 기능
+
+### 필수 기능
+
+#### 1. 출퇴근 경로 등록
+
+- 출발지 입력
+- 도착지 입력
+
+#### 2. 이동수단 비용 비교
+
+- 자가용 예상 비용 계산
+- 대중교통 예상 비용 계산
+- 월간 절감 금액 제공
+
+#### 3. 미세먼지 경보 알림 (UI 표시 상세)
+
+- 에어코리아 API 연동을 통해 실시간 미세먼지/초미세먼지 경보 발령 현황 수신
+- **나쁨 (주의보 발령) 시 화면 변화:**
+  - 화면 최상단 히어로(Hero) 영역 배경색이 **주황색 그라데이션**으로 변경
+  - 이모지가 마스크를 쓴 이모지(😷)로 변경되며 숨쉬는 듯한 애니메이션 효과 적용
+  - 큰 글씨로 **"주의보 발령"** 표시 및 "미세먼지 주의보가 발령되었습니다" 문구 노출
+  - 각 측정치(PM10, PM2.5) 옆에 주황색 뱃지로 수치 경고 표시
+  - 하단에 **"건강 수칙"** 영역이 나타나 마스크 착용, 실외 활동 자제 등의 행동 가이드 노출
+  - **"대중교통 이용 권장"** 메시지를 띄워 사용자의 행동 변화 유도
+- 매우 나쁨 (경보 발령) 시 화면 변화:
+  - 위 상태에서 배경색이 **빨간색 그라데이션**, 이모지(🤢), "경보 발령" 뱃지 등으로 한층 더 강한 시각적 경고 제공
+- 좋음 (경보 없음) 시 화면 변화:
+  - 배경색이 **초록색/파란색 그라데이션**, 이모지(😊), 건강 수칙 영역 숨김 처리
+
+#### 4. 탄소 절감량 시각화
+
+- 대중교통 이용 시 절감되는 탄소량 제공
+
+#### 5. 절약 리포트
+
+- 월간 절감 금액
+- 월간 절감 시간
+- 누적 절약 현황 제공
+
+---
+
+## 5. 사용자 흐름
+
+1. 사용자가 서비스 접속
+2. 출발지 및 도착지 입력
+3. 출퇴근 이동 정보 저장
+4. 자가용 예상 비용 계산
+5. 대중교통 예상 비용 계산
+6. 비용 및 시간 비교 결과 제공
+7. 미세먼지 경보 발생 시 알림 제공
+8. 대중교통 이용 추천 확인
+9. 월간 절감 리포트 확인
+
+---
+
+## 6. 화면 목록
+
+### 1. 온보딩 화면
+
+서비스 소개 및 시작하기
+
+### 2. 출퇴근 정보 입력 화면
+
+- 출발지 입력
+- 도착지 입력
+- 차량 정보 입력
+
+### 3. 비교 결과 화면
+
+- 자가용 비용
+- 대중교통 비용
+- 절감 금액
+- 절감 시간
+
+### 4. 미세먼지 현황 화면
+
+- 현재 미세먼지 상태
+- 경보 여부 확인
+
+### 5. 절약 리포트 화면
+
+- 월간 절약 금액
+- 탄소 절감량
+- 이용 통계
+
+### 6. 마이페이지
+
+- 사용자 정보 관리
+- 알림 설정
+- 출퇴근 정보 수정
+
+---
+
+## 7. 데이터 모델 초안
+
+### User
+
+| Field | Type |
+|---------|---------|
+| user_id | string |
+| nickname | string |
+| email | string |
+| created_at | datetime |
+
+### CommuteRoute
+
+| Field | Type |
+|---------|---------|
+| route_id | string |
+| user_id | string |
+| departure | string |
+| destination | string |
+| distance | number |
+| created_at | datetime |
+
+### Vehicle
+
+| Field | Type |
+|---------|---------|
+| vehicle_id | string |
+| user_id | string |
+| fuel_type | string |
+| fuel_efficiency | number |
+| fuel_price | number |
+
+### AirQuality
+
+| Field | Type |
+|---------|---------|
+| air_id | string |
+| region | string |
+| pm10_level | number |
+| pm25_level | number |
+| alert_level | string |
+| issued_at | datetime |
+
+### Report
+
+| Field | Type |
+|---------|---------|
+| report_id | string |
+| user_id | string |
+| saved_cost | number |
+| saved_time | number |
+| carbon_reduction | number |
+| created_at | datetime |
+
+---
+
+# 📌 확정된 서비스 정책 (기획 답변)
+
+1. **회원가입:** 회원가입 없이 사용 가능 (로컬 스토리지 기반 데이터 저장)
+2. **경로 등록:** 출퇴근 경로 여러 개 등록 가능
+3. **유류비 기준:** 평균 휘발유/경유 가격 기준 사용
+4. **추가 비용:** 주차비 및 통행료 포함하여 계산
+5. **교통 정보:** 실시간 교통정보는 추후 업데이트 (초기엔 평균 거리/시간으로 계산)
+6. **알림 기능:** 미세먼지 알림 기능 제공 (API 연동을 통한 화면 내 표시)
+7. **서비스 지역:** 서울·경기 수도권 중심으로 시작
+8. **절감 리포트:** 주간 기준으로 절감 리포트 제공 (일간/월간은 추후 추가)
+9. **경로 추천 API:** 추후 카카오모빌리티 등 도입 예정
+10. **이용 여부 확인:** 실제 이용 여부 확인보다 스스로 절감액을 확인하게 하는 행동 유도에 집중
