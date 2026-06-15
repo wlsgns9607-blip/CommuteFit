@@ -16,15 +16,13 @@ const HeroContainer = styled.section<{ $worst: string }>`
   transition: background 0.5s, border-color 0.5s;
 
   background: ${({ $worst }) =>
-    $worst === 'very-bad' ? 'linear-gradient(160deg, rgba(239,68,68,0.2) 0%, rgba(245,158,11,0.08) 100%)' :
-    $worst === 'bad' ? 'linear-gradient(160deg, rgba(245,158,11,0.2) 0%, rgba(234,179,8,0.08) 100%)' :
-    $worst === 'moderate' ? 'linear-gradient(160deg, rgba(59,130,246,0.2) 0%, rgba(45,212,191,0.08) 100%)' :
+    $worst === 'very-bad' || $worst === 'bad' ? 'linear-gradient(160deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.08) 100%)' :
+    $worst === 'moderate' ? 'linear-gradient(160deg, rgba(234,179,8,0.2) 0%, rgba(234,179,8,0.08) 100%)' :
     'linear-gradient(160deg, rgba(16,185,129,0.2) 0%, rgba(45,212,191,0.08) 100%)'};
   
   border: 1px solid ${({ $worst }) =>
-    $worst === 'very-bad' ? 'rgba(239,68,68,0.25)' :
-    $worst === 'bad' ? 'rgba(245,158,11,0.25)' :
-    $worst === 'moderate' ? 'rgba(59,130,246,0.25)' :
+    $worst === 'very-bad' || $worst === 'bad' ? 'rgba(239,68,68,0.25)' :
+    $worst === 'moderate' ? 'rgba(234,179,8,0.25)' :
     'rgba(16,185,129,0.25)'};
 
   &::before {
@@ -35,9 +33,8 @@ const HeroContainer = styled.section<{ $worst: string }>`
     border-radius: 50%;
     transition: background 0.5s;
     background: ${({ $worst }) =>
-      $worst === 'very-bad' ? 'radial-gradient(circle, rgba(239,68,68,0.15), transparent 70%)' :
-      $worst === 'bad' ? 'radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%)' :
-      $worst === 'moderate' ? 'radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%)' :
+      $worst === 'very-bad' || $worst === 'bad' ? 'radial-gradient(circle, rgba(239,68,68,0.15), transparent 70%)' :
+      $worst === 'moderate' ? 'radial-gradient(circle, rgba(234,179,8,0.15), transparent 70%)' :
       'radial-gradient(circle, rgba(16,185,129,0.15), transparent 70%)'};
   }
 `;
@@ -96,14 +93,12 @@ const Badge = styled.span<{ $status: string }>`
   font-size: 11px; font-weight: 700;
   
   background: ${({ $status }) =>
-    $status === 'very-bad' ? 'rgba(239,68,68,0.2)' :
-    $status === 'bad' ? 'rgba(245,158,11,0.2)' :
-    $status === 'moderate' ? 'rgba(59,130,246,0.2)' :
+    $status === 'very-bad' || $status === 'bad' ? 'rgba(239,68,68,0.2)' :
+    $status === 'moderate' ? 'rgba(234,179,8,0.2)' :
     'rgba(16,185,129,0.2)'};
   color: ${({ $status }) =>
-    $status === 'very-bad' ? 'var(--red)' :
-    $status === 'bad' ? 'var(--orange)' :
-    $status === 'moderate' ? 'var(--blue)' :
+    $status === 'very-bad' || $status === 'bad' ? 'var(--red)' :
+    $status === 'moderate' ? '#EAB308' :
     'var(--emerald)'};
 `;
 
@@ -188,10 +183,10 @@ const AirHero: React.FC<Props> = ({ info }) => {
         </AirValCard>
       </AirValues>
       <AirRecommend>
-        {worst === 'good' || worst === 'moderate' ? (
+        {worst === 'good' ? (
           <>🚶 현재 <strong>&nbsp;미세먼지 경보가 없습니다</strong> — 쾌적한 하루!</>
         ) : (
-          <>🚇 오늘은 <strong>&nbsp;대중교통 이용</strong>을 권장합니다</>
+          <>🚇 <strong>오늘은 대중교통을 이용했으면 좋겠습니다.</strong></>
         )}
       </AirRecommend>
     </HeroContainer>
