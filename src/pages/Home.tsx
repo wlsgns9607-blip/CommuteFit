@@ -51,7 +51,7 @@ const Home: React.FC<HomeProps> = ({ showSettings, setShowSettings }) => {
 
   return (
     <>
-      <NoticeBar>📢 [공지사항] 미세먼지 줄이기 캠페인 진행 중!!</NoticeBar>
+      <NoticeBar>📢 우리나라 미세먼지를 줄여보아요!! 대중교통을 이용해봅시다!!</NoticeBar>
       <AirHero info={airInfo} />
       
       {routes.length > 1 && (
