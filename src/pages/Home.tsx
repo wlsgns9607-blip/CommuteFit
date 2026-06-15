@@ -22,6 +22,24 @@ const RoutePill = styled.button<{ $active: boolean }>`
   cursor: pointer; font-family: var(--font); transition: all 0.2s;
 `;
 
+const NoticeBar = styled.div`
+  margin: 16px 20px 8px;
+  padding: 12px 16px;
+  background: rgba(45, 212, 191, 0.1);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--teal);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(45, 212, 191, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+  }
+`;
+
 interface HomeProps {
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
@@ -33,6 +51,7 @@ const Home: React.FC<HomeProps> = ({ showSettings, setShowSettings }) => {
 
   return (
     <>
+      <NoticeBar>📢 [공지사항] 미세먼지 줄이기 캠페인 진행 중!!</NoticeBar>
       <AirHero info={airInfo} />
       
       {routes.length > 1 && (
