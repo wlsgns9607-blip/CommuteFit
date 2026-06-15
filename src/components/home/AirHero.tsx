@@ -107,7 +107,7 @@ const AirRecommend = styled.div`
   border-radius: var(--radius-sm);
   padding: 14px 16px;
   font-size: 14px; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
+  line-height: 1.5; word-break: keep-all;
   position: relative; z-index: 1;
 `;
 
@@ -184,7 +184,7 @@ const AirHero: React.FC<Props> = ({ info }) => {
       </AirValues>
       <AirRecommend>
         {worst === 'good' ? (
-          <>🚶 현재 <strong>&nbsp;미세먼지 경보가 없습니다</strong> — 쾌적한 하루!</>
+          <>🚶 현재 <strong>미세먼지 경보가 없습니다</strong> — 쾌적한 하루!</>
         ) : worst === 'moderate' ? (
           <>🚇 <strong>오늘은 대중교통을 이용했으면 좋겠습니다.</strong></>
         ) : (
