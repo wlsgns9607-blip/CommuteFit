@@ -19,6 +19,21 @@ const BtnClose = styled.button`
   cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, color 0.2s; font-family: var(--font);
   &:hover { background: rgba(255,255,255,0.15); color: var(--text); }
 `;
+
+const RouteTabs = styled.div`
+  display: flex; gap: 8px; overflow-x: auto; margin-bottom: 24px; padding-bottom: 8px;
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+`;
+const RouteTab = styled.button<{ $active: boolean }>`
+  padding: 10px 16px; border-radius: 20px; white-space: nowrap; font-size: 13px; font-weight: 600;
+  background: ${({ $active }) => ($active ? 'var(--teal)' : 'var(--glass)')};
+  color: ${({ $active }) => ($active ? '#fff' : 'var(--text2)')};
+  border: 1px solid ${({ $active }) => ($active ? 'var(--teal)' : 'var(--glass-border)')};
+  cursor: pointer; font-family: var(--font); transition: all 0.2s;
+`;
+const AddTab = styled(RouteTab)`background: transparent; border-style: dashed; color: var(--text3);`
+
 const FormGroup = styled.div`
   margin-bottom: 16px; label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
 `;
@@ -35,39 +50,76 @@ const FuelOption = styled.button<{ $active?: boolean }>`
   color: ${({ $active }) => ($active ? 'var(--teal)' : 'var(--text2)')};
   text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: var(--font);
 `;
+const BtnGroup = styled.div`display: flex; gap: 8px; margin-top: 24px;`;
 const BtnPrimary = styled.button`
-  width: 100%; padding: 16px; border: none; border-radius: var(--radius-sm); background: var(--gradient); color: #fff;
-  font-family: var(--font); font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: transform 0.2s;
+  flex: 1; padding: 16px; border: none; border-radius: var(--radius-sm); background: var(--gradient); color: #fff;
+  font-family: var(--font); font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s;
+  &:active { transform: scale(0.97); }
+`;
+const BtnDelete = styled.button`
+  padding: 16px; border: 1px solid var(--red); border-radius: var(--radius-sm); background: rgba(239,68,68,0.1); color: var(--red);
+  font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s;
   &:active { transform: scale(0.97); }
 `;
 
 interface Props {
   show: boolean;
   onClose: () => void;
-  data: CommuteData | null;
-  onSave: (newData: Partial<CommuteData>) => void;
+  routes: CommuteData[];
+  activeId: string | null;
+  onSave: (newData: CommuteData) => void;
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-const SettingsSheet: React.FC<Props> = ({ show, onClose, data, onSave }) => {
+const SettingsSheet: React.FC<Props> = ({ show, onClose, routes, activeId, onSave, onSelect, onDelete }) => {
   const [formData, setFormData] = useState<Partial<CommuteData>>({});
 
   useEffect(() => {
-    if (data) {
-      setFormData(data);
+    if (show && activeId) {
+      const route = routes.find(r => r.id === activeId);
+      if (route) setFormData(route);
     }
-  }, [data, show]);
+  }, [show, activeId, routes]);
 
   const handleChange = (field: keyof CommuteData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
+    if (!formData.name) return alert('경로 이름을 입력해주세요.');
     if (!formData.departure || !formData.destination) return alert('출발지와 도착지를 입력해주세요.');
     if (!formData.distance || formData.distance <= 0) return alert('편도 거리를 입력해주세요.');
     if (!formData.efficiency || formData.efficiency <= 0) return alert('차량 연비를 입력해주세요.');
     
-    onSave(formData);
+    if (!formData.id) {
+      formData.id = 'route_' + Date.now();
+    }
+    
+    onSave(formData as CommuteData);
     onClose();
+  };
+  
+  const handleAdd = () => {
+    setFormData({
+      id: 'route_' + Date.now(),
+      name: '새 경로 ' + (routes.length + 1),
+      departure: '',
+      destination: '',
+      distance: 10,
+      efficiency: 12,
+      workdays: 5,
+      parking: 0,
+      toll: 0,
+      fuelType: 'gasoline'
+    });
+  };
+
+  const handleDelete = () => {
+    if (confirm('이 경로를 삭제하시겠습니까?')) {
+      onDelete(formData.id!);
+      onClose();
+    }
   };
 
   return (
@@ -79,6 +131,23 @@ const SettingsSheet: React.FC<Props> = ({ show, onClose, data, onSave }) => {
           <BtnClose onClick={onClose}>✕</BtnClose>
         </SettingsTop>
         
+        <RouteTabs>
+          {routes.map(r => (
+            <RouteTab 
+              key={r.id} 
+              $active={r.id === formData.id} 
+              onClick={() => { onSelect(r.id); setFormData(r); }}
+            >
+              {r.name}
+            </RouteTab>
+          ))}
+          <AddTab $active={false} onClick={handleAdd}>+ 새 경로</AddTab>
+        </RouteTabs>
+        
+        <FormGroup>
+          <label>경로 이름</label>
+          <FormInput type="text" placeholder="예: 기본 출퇴근" value={formData.name || ''} onChange={(e) => handleChange('name', e.target.value)} />
+        </FormGroup>
         <FormGroup>
           <label>출발지</label>
           <FormInput type="text" placeholder="예: 서울시 강남구" value={formData.departure || ''} onChange={(e) => handleChange('departure', e.target.value)} />
@@ -105,18 +174,23 @@ const SettingsSheet: React.FC<Props> = ({ show, onClose, data, onSave }) => {
         </FormGroup>
         <FormGroup>
           <label>일일 주차비 (원)</label>
-          <FormInput type="number" placeholder="예: 10000" min="0" value={formData.parking || ''} onChange={(e) => handleChange('parking', parseInt(e.target.value) || 0)} />
+          <FormInput type="number" placeholder="예: 10000" min="0" value={formData.parking === undefined ? '' : formData.parking} onChange={(e) => handleChange('parking', parseInt(e.target.value) || 0)} />
         </FormGroup>
         <FormGroup>
           <label>일일 통행료 (원, 왕복 기준)</label>
-          <FormInput type="number" placeholder="예: 2000" min="0" value={formData.toll || ''} onChange={(e) => handleChange('toll', parseInt(e.target.value) || 0)} />
+          <FormInput type="number" placeholder="예: 2000" min="0" value={formData.toll === undefined ? '' : formData.toll} onChange={(e) => handleChange('toll', parseInt(e.target.value) || 0)} />
         </FormGroup>
         <FormGroup>
           <label>주간 출근 일수</label>
           <FormInput type="number" placeholder="예: 5" min="1" max="7" value={formData.workdays || ''} onChange={(e) => handleChange('workdays', parseInt(e.target.value) || 5)} />
         </FormGroup>
 
-        <BtnPrimary onClick={handleSave}>저장하기</BtnPrimary>
+        <BtnGroup>
+          {routes.length > 1 && formData.id && routes.find(r=>r.id===formData.id) && (
+            <BtnDelete onClick={handleDelete}>삭제</BtnDelete>
+          )}
+          <BtnPrimary onClick={handleSave}>저장하기</BtnPrimary>
+        </BtnGroup>
       </Sheet>
     </Overlay>
   );
