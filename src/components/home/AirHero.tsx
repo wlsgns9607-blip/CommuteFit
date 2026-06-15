@@ -111,6 +111,43 @@ const AirRecommend = styled.div`
   position: relative; z-index: 1;
 `;
 
+const AnimatedNumber: React.FC<{ value: string | number }> = ({ value }) => {
+  const [count, setCount] = useState(0);
+  const numValue = Number(value);
+
+  useEffect(() => {
+    if (isNaN(numValue) || numValue === 0) {
+      setCount(numValue || 0);
+      return;
+    }
+
+    let startTime: number;
+    let animationFrame: number;
+    const duration = 1500; // 1.5초 애니메이션
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+      const ratio = Math.min(progress / duration, 1);
+      
+      const easeOut = 1 - Math.pow(1 - ratio, 3);
+      setCount(Math.floor(numValue * easeOut));
+
+      if (progress < duration) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setCount(numValue);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [numValue]);
+
+  if (isNaN(numValue)) return <>{value}</>;
+  return <>{count}</>;
+};
+
 interface Props {
   info: AirQualityInfo | null;
 }
@@ -160,7 +197,7 @@ const AirHero: React.FC<Props> = ({ info }) => {
         <AirValCard>
           <Label>미세먼지 PM10</Label>
           <NumRow>
-            <Num>{info?.pm10Val || '-'}</Num>
+            <Num>{info?.pm10Val ? <AnimatedNumber value={info.pm10Val} /> : '-'}</Num>
             <Unit>㎍/㎥</Unit>
           </NumRow>
           {info?.pm10Gbn ? (
@@ -172,7 +209,7 @@ const AirHero: React.FC<Props> = ({ info }) => {
         <AirValCard>
           <Label>초미세먼지 PM2.5</Label>
           <NumRow>
-            <Num>{info?.pm25Val || '-'}</Num>
+            <Num>{info?.pm25Val ? <AnimatedNumber value={info.pm25Val} /> : '-'}</Num>
             <Unit>㎍/㎥</Unit>
           </NumRow>
           {info?.pm25Gbn ? (
