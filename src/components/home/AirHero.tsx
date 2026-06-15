@@ -185,8 +185,10 @@ const AirHero: React.FC<Props> = ({ info }) => {
       <AirRecommend>
         {worst === 'good' ? (
           <>🚶 현재 <strong>&nbsp;미세먼지 경보가 없습니다</strong> — 쾌적한 하루!</>
-        ) : (
+        ) : worst === 'moderate' ? (
           <>🚇 <strong>오늘은 대중교통을 이용했으면 좋겠습니다.</strong></>
+        ) : (
+          <>😷 <strong>미세먼지가 심합니다. 반드시 대중교통을 이용해 주세요!</strong></>
         )}
       </AirRecommend>
     </HeroContainer>
