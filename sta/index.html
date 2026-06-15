@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="미세먼지 정보와 출퇴근 데이터 기반 경제적 이동수단 추천 서비스">
+  <title>CommuteFit - 커뮤트핏</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="app-logo">🌫️ <span>CommuteFit</span></div>
+    <button class="btn-settings" id="btn-settings" title="설정">⚙️</button>
+  </header>
+
+  <!-- 1순위: 미세먼지 상태 (히어로) -->
+  <section class="air-hero bad" id="air-hero">
+    <div class="air-top">
+      <div class="air-location">📍 현재 <strong id="air-region">서울시</strong></div>
+      <div class="air-time" id="air-time">오전 11:47 기준</div>
+    </div>
+    <div class="air-status-main">
+      <div class="air-emoji" id="air-emoji">😷</div>
+      <div class="air-main-text">
+        <div class="air-grade" id="air-grade">나쁨</div>
+        <div class="air-desc" id="air-desc">외출 시 마스크를 착용하세요</div>
+      </div>
+    </div>
+    <div class="air-values">
+      <div class="air-val-card">
+        <div class="label">미세먼지 PM10</div>
+        <div class="num-row">
+          <span class="num" id="pm10-val">-</span>
+          <span class="unit">㎍/㎥</span>
+        </div>
+        <span class="badge badge-good" id="pm10-badge">조회 중</span>
+      </div>
+      <div class="air-val-card">
+        <div class="label">초미세먼지 PM2.5</div>
+        <div class="num-row">
+          <span class="num" id="pm25-val">-</span>
+          <span class="unit">㎍/㎥</span>
+        </div>
+        <span class="badge badge-good" id="pm25-badge">조회 중</span>
+      </div>
+    </div>
+    <div class="air-recommend" id="air-recommend">
+      🚇 오늘은 <strong>&nbsp;대중교통 이용</strong>을 권장합니다
+    </div>
+  </section>
+
+  <!-- 2순위: 비용 비교 -->
+  <div class="section-title">📊 이동수단 비용 비교</div>
+  <div class="cost-area">
+    <div class="cost-card">
+      <div class="cost-left">
+        <div class="cost-icon">🚗</div>
+        <div>
+          <div class="cost-label">자가용 예상 비용 (주간)</div>
+          <div class="cost-name">유류비 + 주차비 + 통행료</div>
+        </div>
+      </div>
+      <div class="cost-price car-color" id="cost-car">297,000원</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-left">
+        <div class="cost-icon">🚇</div>
+        <div>
+          <div class="cost-label">대중교통 예상 비용 (주간)</div>
+          <div class="cost-name">지하철 + 버스</div>
+        </div>
+      </div>
+      <div class="cost-price transit-color" id="cost-transit">62,000원</div>
+    </div>
+  </div>
+
+  <!-- 3순위: 절약 금액 -->
+  <div class="section-title">💰 절약 현황</div>
+  <div class="savings-area">
+    <div class="savings-card">
+      <div class="savings-label">💰 이번 주 절약 예상액</div>
+      <div class="savings-amount" id="savings-amount">55,000원</div>
+      <div class="savings-sub">대중교통 이용 시 절약 가능한 금액</div>
+      <div class="savings-detail">
+        <div class="savings-detail-item">
+          <div class="sd-icon">🌳</div>
+          <div class="sd-val" id="sd-carbon">12.5kg</div>
+          <div class="sd-label">탄소 절감</div>
+        </div>
+        <div class="savings-detail-item">
+          <div class="sd-icon">🌲</div>
+          <div class="sd-val" id="sd-trees">2.1그루</div>
+          <div class="sd-label">나무 환산</div>
+        </div>
+        <div class="savings-detail-item">
+          <div class="sd-icon">📅</div>
+          <div class="sd-val" id="sd-days">22일</div>
+          <div class="sd-label">출근일수</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4순위: 건강 수칙 -->
+  <div class="section-title" id="tips-title">😷 건강 수칙</div>
+  <div class="tips-area" id="tips-area">
+    <div class="tips-card" id="tips-card">
+      <div class="tip-item"><span class="tip-icon">😷</span> 외출 시 마스크 착용을 권장합니다</div>
+      <div class="tip-item"><span class="tip-icon">🚇</span> 가급적 대중교통을 이용해주세요</div>
+      <div class="tip-item"><span class="tip-icon">🏠</span> 실외 활동을 자제해주세요</div>
+      <div class="tip-item"><span class="tip-icon">💧</span> 물을 자주 섭취해주세요</div>
+    </div>
+  </div>
+
+  <!-- 설정 (출퇴근 정보 입력) Bottom Sheet -->
+  <div class="settings-overlay" id="settings-overlay">
+    <div class="settings-sheet">
+      <div class="settings-handle"></div>
+      <div class="settings-top">
+        <div class="settings-title">🚗 출퇴근 정보 설정</div>
+        <button class="btn-close" id="btn-close-settings">✕</button>
+      </div>
+      <div class="form-group">
+        <label>출발지</label>
+        <input type="text" class="form-input" id="input-departure" placeholder="예: 서울시 강남구">
+      </div>
+      <div class="form-group">
+        <label>도착지</label>
+        <input type="text" class="form-input" id="input-destination" placeholder="예: 서울시 종로구">
+      </div>
+      <div class="form-group">
+        <label>편도 거리 (km)</label>
+        <input type="number" class="form-input" id="input-distance" placeholder="예: 25" min="1" max="200">
+      </div>
+      <div class="form-group">
+        <label>연료 종류</label>
+        <div class="fuel-options">
+          <button class="fuel-option active" data-fuel="gasoline">휘발유</button>
+          <button class="fuel-option" data-fuel="diesel">경유</button>
+          <button class="fuel-option" data-fuel="lpg">LPG</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>차량 연비 (km/L)</label>
+        <input type="number" class="form-input" id="input-efficiency" placeholder="예: 12" min="1" max="50" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>일일 주차비 (원)</label>
+        <input type="number" class="form-input" id="input-parking" placeholder="예: 10000" min="0">
+      </div>
+      <div class="form-group">
+        <label>일일 통행료 (원, 왕복 기준)</label>
+        <input type="number" class="form-input" id="input-toll" placeholder="예: 2000" min="0">
+      </div>
+      <div class="form-group">
+        <label>주간 출근 일수</label>
+        <input type="number" class="form-input" id="input-workdays" placeholder="예: 5" min="1" max="7" value="5">
+      </div>
+      <button class="btn-primary" id="btn-save">저장하기</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
