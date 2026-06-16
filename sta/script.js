@@ -262,7 +262,7 @@
     if (worst === 'good' || worst === 'moderate') {
       rec.innerHTML = '🚶 현재 <strong>&nbsp;미세먼지 경보가 없습니다</strong> — 쾌적한 하루!';
     } else {
-      rec.innerHTML = '🚇 오늘은 <strong>&nbsp;대중교통 이용</strong>을 권장합니다';
+      rec.innerHTML = '🌍 <strong>대기질이 좋지 않습니다.</strong> 자가용 이용을 줄이면 환경에 큰 도움이 됩니다.';
     }
 
     // 건강 수칙
@@ -282,14 +282,14 @@
         ],
         'bad': [
           { icon: '😷', text: '외출 시 마스크 착용을 권장합니다' },
-          { icon: '🚇', text: '가급적 대중교통을 이용해주세요' },
+          { icon: '🚇', text: '자가용 이용을 줄이면 배출가스를 줄이는 데 도움이 됩니다' },
           { icon: '🏠', text: '실외 활동을 자제해주세요' },
           { icon: '💧', text: '물을 자주 섭취해주세요' },
         ],
         'very-bad': [
           { icon: '🚨', text: '외출을 삼가고 실내에 머물러주세요' },
           { icon: '😷', text: '부득이 외출 시 KF94 마스크 필수' },
-          { icon: '🚇', text: '반드시 대중교통을 이용해주세요' },
+          { icon: '🚇', text: '대중교통을 이용해 쾌적한 대기 환경 만들기에 동참해주세요' },
           { icon: '🏠', text: '창문을 닫고 공기청정기를 가동하세요' },
           { icon: '💧', text: '물과 비타민을 충분히 섭취하세요' },
         ],
