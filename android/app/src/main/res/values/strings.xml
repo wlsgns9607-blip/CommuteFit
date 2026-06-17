@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CommuteFit</string>
+    <string name="title_activity_main">CommuteFit</string>
+    <string name="package_name">com.chojinhun.commutefit</string>
+    <string name="custom_url_scheme">com.chojinhun.commutefit</string>
+</resources>

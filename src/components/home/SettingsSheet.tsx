@@ -62,6 +62,27 @@ const BtnDelete = styled.button`
   &:active { transform: scale(0.97); }
 `;
 
+const PreviewBox = styled.div`
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-top: 20px;
+  margin-bottom: 8px;
+`;
+const PreviewTitle = styled.div`
+  font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+`;
+const PreviewRow = styled.div`
+  display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;
+  &:last-child { margin-bottom: 0; }
+`;
+const PreviewLabel = styled.span`color: var(--text3);`;
+const PreviewValue = styled.span<{ $color?: string }>`
+  font-weight: 700; color: ${({ $color }) => $color || 'var(--text)'};
+`;
+
 interface Props {
   show: boolean;
   onClose: () => void;
@@ -81,6 +102,35 @@ const SettingsSheet: React.FC<Props> = ({ show, onClose, routes, activeId, onSav
       if (route) setFormData(route);
     }
   }, [show, activeId, routes]);
+
+  const getTempCalculated = () => {
+    const distance = formData.distance || 0;
+    const efficiency = formData.efficiency || 12;
+    const fuelType = formData.fuelType || 'gasoline';
+    const parking = formData.parking || 0;
+    const toll = formData.toll || 0;
+    const workdays = formData.workdays || 5;
+
+    const FUEL_PRICES: Record<string, number> = { gasoline: 2009, diesel: 2004, lpg: 1050 };
+    const TRANSIT_BASE = 1400;
+    const TRANSIT_PER_KM = 80;
+    const fuelPrice = FUEL_PRICES[fuelType] || 2009;
+
+    const roundTrip = distance * 2;
+    const carDailyFuel = efficiency > 0 ? (roundTrip / efficiency) * fuelPrice : 0;
+    const carDailyTotal = carDailyFuel + parking + toll;
+    const carCost = Math.round(carDailyTotal * workdays);
+
+    const transitOne = TRANSIT_BASE + Math.max(0, distance - 10) * TRANSIT_PER_KM;
+    const transitCost = Math.round(transitOne * 2 * workdays);
+
+    const savings = carCost - transitCost;
+
+    return { carCost, transitCost, savings };
+  };
+
+  const tempCalc = getTempCalculated();
+  const formatWon = (n: number) => n.toLocaleString('ko-KR') + '원';
 
   const handleChange = (field: keyof CommuteData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -184,6 +234,22 @@ const SettingsSheet: React.FC<Props> = ({ show, onClose, routes, activeId, onSav
           <label>주간 출근 일수</label>
           <FormInput type="number" placeholder="예: 5" min="1" max="7" value={formData.workdays || ''} onChange={(e) => handleChange('workdays', parseInt(e.target.value) || 5)} />
         </FormGroup>
+
+        <PreviewBox>
+          <PreviewTitle>💡 실시간 계산 미리보기 (주간)</PreviewTitle>
+          <PreviewRow>
+            <PreviewLabel>🚗 자가용 비용</PreviewLabel>
+            <PreviewValue $color="var(--orange)">{formatWon(tempCalc.carCost)}</PreviewValue>
+          </PreviewRow>
+          <PreviewRow>
+            <PreviewLabel>🚇 대중교통 비용</PreviewLabel>
+            <PreviewValue $color="var(--teal)">{formatWon(tempCalc.transitCost)}</PreviewValue>
+          </PreviewRow>
+          <PreviewRow style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '8px', marginTop: '8px' }}>
+            <PreviewLabel style={{ fontWeight: 700 }}>💰 절약 예상액</PreviewLabel>
+            <PreviewValue $color="var(--emerald)" style={{ fontSize: '15px' }}>{formatWon(tempCalc.savings)}</PreviewValue>
+          </PreviewRow>
+        </PreviewBox>
 
         <BtnGroup>
           {routes.length > 1 && formData.id && routes.find(r=>r.id===formData.id) && (
