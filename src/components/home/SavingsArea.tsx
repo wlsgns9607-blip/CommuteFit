@@ -46,6 +46,139 @@ const pulse = keyframes`
   100% { transform: scale(1); }
 `;
 
+// CommuteFit Score Styled Components
+const ScoreCard = styled.div`
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(170, 59, 255, 0.06));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  margin: 0 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(10px);
+`;
+
+const ScoreMain = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const ScoreCircleWrapper = styled.div`
+  position: relative;
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+`;
+
+const ScoreCircle = styled.div<{ $percent: number }>`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: ${({ $percent }) => `conic-gradient(var(--teal) ${$percent}%, rgba(255,255,255,0.05) ${$percent}%)`};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.15);
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: #111625;
+    border-radius: 50%;
+    z-index: 1;
+  }
+`;
+
+const ScoreText = styled.div`
+  position: relative;
+  z-index: 2;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  span {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-left: 2px;
+  }
+`;
+
+const ScoreInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  flex-grow: 1;
+`;
+
+const ScoreTitle = styled.div`
+  font-size: 12px;
+  color: var(--text2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const GradeBadge = styled.span`
+  background: rgba(170, 59, 255, 0.15);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  width: fit-content;
+  margin-top: 4px;
+`;
+
+const RankInfo = styled.div`
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 2px;
+  span {
+    color: var(--teal);
+  }
+`;
+
+const ScoreSubGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.02);
+`;
+
+const ScoreSubItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+`;
+
+const ScoreSubLabel = styled.span`
+  font-size: 11px;
+  color: var(--text3);
+`;
+
+const ScoreSubVal = styled.span`
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  span {
+    color: var(--emerald);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+`;
+
 // Additional Styled Components for Environmental Contribution
 const EcoContainer = styled.div`
   padding: 0 20px;
@@ -334,6 +467,15 @@ const SavingsArea: React.FC<Props> = ({ data }) => {
   const carCarbon = parseFloat((weeklyDistance * 0.185).toFixed(1));
   const transitCarbon = parseFloat((weeklyDistance * 0.0275).toFixed(1));
 
+  // Dynamic scoring system
+  const score = Math.min(100, Math.round(75 + (weeklyCarbonSavings * 0.4) + (workdays * 1.8)));
+  const topPercent = Math.max(3, Math.min(98, Math.round(100 - (score - 60) * 2.2)));
+  
+  let grade = "그린 리더 🌱";
+  if (score >= 95) grade = "지구 구조대원 🌍";
+  else if (score >= 85) grade = "에코 마스터 🌲";
+  else if (score < 70) grade = "에코 비기너 ☘️";
+
   const [cumulative, setCumulative] = useState({
     count: 15,
     distance: 240,
@@ -383,6 +525,10 @@ const SavingsArea: React.FC<Props> = ({ data }) => {
     }, 1200);
   };
 
+  const dailySavings = data?.savings ? Math.round(data.savings / workdays) : 6000;
+  const cumulativeSavingsVal = cumulative.count * dailySavings;
+  const plantedTrees = parseFloat((cumulative.carbon / 6.6).toFixed(1));
+
   return (
     <>
       <SectionTitle>💰 절약 현황</SectionTitle>
@@ -410,6 +556,34 @@ const SavingsArea: React.FC<Props> = ({ data }) => {
           </SavingsDetail>
         </SavingsCard>
       </SavingsAreaContainer>
+
+      <SectionTitle>🏆 CommuteFit 점수</SectionTitle>
+      <ScoreCard>
+        <ScoreMain>
+          <ScoreCircleWrapper>
+            <ScoreCircle $percent={score}>
+              <ScoreText>{score}<span>점</span></ScoreText>
+            </ScoreCircle>
+          </ScoreCircleWrapper>
+          
+          <ScoreInfo>
+            <ScoreTitle>🏅 친환경 출퇴근 등급</ScoreTitle>
+            <RankInfo>서울시 직장인 상위 <span>{topPercent}%</span></RankInfo>
+            <GradeBadge>{grade}</GradeBadge>
+          </ScoreInfo>
+        </ScoreMain>
+
+        <ScoreSubGrid>
+          <ScoreSubItem>
+            <ScoreSubLabel>올해 누적 절약액</ScoreSubLabel>
+            <ScoreSubVal>{cumulativeSavingsVal.toLocaleString('ko-KR')}원</ScoreSubVal>
+          </ScoreSubItem>
+          <ScoreSubItem>
+            <ScoreSubLabel>소나무 식재 효과</ScoreSubLabel>
+            <ScoreSubVal>{plantedTrees}그루<span>🌲</span></ScoreSubVal>
+          </ScoreSubItem>
+        </ScoreSubGrid>
+      </ScoreCard>
 
       <SectionTitle>🌱 환경 기여도 리포트</SectionTitle>
       <EcoContainer>
